@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Search for Medication</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.medication.label }}<br />
+    {{ form.medication(size=20) }} {% if form.medication.errors %}
+    <ul>
+      {% for error in form.medication.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  <div>{{ form.submit() }}</div>
+</form>
+
+{% if medication_name %}
+<h2>Matching Medication Results:</h2>
+<ul>
+  {% for med in medication_name %}
+  <li>
+    <a href="/add_medication?medication_name={{ med }}">{{ med }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %} {% endblock %}

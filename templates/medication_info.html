@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block title %} Medication Information {% endblock
+%} {% block content %}
+<h1 class="display-1">{{ medication_info_form.medication_name.data }}</h1>
+
+<form method="POST">
+  {{ medication_info_form.hidden_tag() }}
+  <p>
+    {{ medication_info_form.medication_name.label }}: {{
+    medication_info_form.medication_name.data }}
+  </p>
+  <p>
+    {{ medication_info_form.start_date.label }}: {{
+    medication_info_form.start_date.data }}
+  </p>
+  <p>
+    {{ medication_info_form.next_dose_time.label }}: {{
+    medication_info_form.next_dose_time.data }}
+  </p>
+  <p>
+    {{ medication_info_form.notes.label }}: {{ medication_info_form.notes.data
+    }}
+  </p>
+  <p>
+    {{ medication_info_form.purpose.label }}: {{
+    medication_info_form.purpose.data }}
+  </p>
+  <p>
+    {{ medication_info_form.indications_and_usage.label }}: {{
+    medication_info_form.indications_and_usage.data }}
+  </p>
+
+  <a class="btn btn-info btn-sm" href="/edit_medication/{{ medication.id }}"
+    >Edit</a
+  >
+  <a class="btn btn-danger btn-sm" href="/delete_medication/{{ medication.id }}"
+    >Delete</a
+  >
+</form>
+{% endblock %}

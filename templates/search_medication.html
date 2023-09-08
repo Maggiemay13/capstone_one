@@ -1,8 +1,9 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Search for Medication</h1>
 <form method="POST">
   {{ form.hidden_tag() }}
-  <div>
+  <div >
+    <h3 class="display-6 text-center">Search for Medication</h3>
+
     {{ form.medication.label }}<br />
     {{ form.medication(size=20) }} {% if form.medication.errors %}
     <ul>
@@ -13,15 +14,18 @@
     {% endif %}
   </div>
   <div>{{ form.submit() }}</div>
-</form>
 
-{% if medications %}
-<h2>Matching Medication Results:</h2>
-<ul>
-  {% for med in medications %}
-  <li>
-    <a href="/add_medication?medication_name={{ med }}">{{ med }}</a>
-  </li>
-  {% endfor %}
-</ul>
-{% endif %} {% endblock %}
+  <div>
+    {% if medications %}
+    <h3 class="display-6 text-center">Matching Medication Results:</h3>
+    <ul>
+      {% for med in medications %}
+      <li>
+        <a href="/add_medication?medication_name={{ med }}">{{ med }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

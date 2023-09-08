@@ -2,6 +2,7 @@
 
 <h1 class="text-center">Medication List</h1>
 <div class="jumbotron">
+  
   <table class="table table-striped">
     <thead class="thread-dark"></thead>
     <tbody>
@@ -12,24 +13,8 @@
             >{{ medication.medication_name }}</a
           >
         </td>
-        <td>
-          <span
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close"
-            href="/delete_medication/{{ medication.id }}"
-          ></span>
-        </td>
-        <td>
-          <span
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close"
-            href="/edit_medication/{{ medication.id }}"
-          ></span>
-        </td>
+        <td></td>
+        <td></td>
         {% else %}
         <td>No Medications Added Yet!</td>
       </tr>

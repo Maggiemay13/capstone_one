@@ -46,7 +46,7 @@ class EditMedicationForm(FlaskForm):
         'Medication Name', validators=[DataRequired()])
     start_date = DateField('Start Date', format='%Y-%m-%d')
     next_dose_time = DateField('Next Dose Time', format='%Y-%m-%d')
-    notes = StringField('Add Notes')
+    notes = StringField('Notes')
 
 
 # class WarningsandQuestions(FlaskForm):

@@ -1,6 +1,8 @@
 import requests
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 from secret import api_key
 from models import db, connect_db, Medication
@@ -21,6 +23,16 @@ connect_db(app)
 
 # API_LABEL_BASE_URL = 'https://api.fda.gov/drug/label.json'
 API_BASE_URL = 'https://api.fda.gov/drug'
+
+scheduler = BackgroundScheduler()
+
+
+def send_notification(medication_name):
+    message = f"It's time to take your {medication_name}."
+    flash(message, 'info')
+
+
+scheduler.start()
 
 
 def get_generic_or_brand_names(medication):
@@ -104,30 +116,6 @@ def get_medication_info(medication_name):
                 "indications_and_usage", [None])[0]
 
     return {'Purpose': purpose, 'Indications and Usage': indications_and_usage}
-
-# def get_medication_info(medication_name):
-#     purpose = None
-#     indications_and_usage = None
-
-#     # Search for medication information
-#     purpose_res = requests.get(
-#         f"{API_BASE_URL}/label.json",
-#         params={'api_key': api_key, 'search': f'"{medication_name}"'}
-#     )
-#     purpose_data = purpose_res.json()
-#     if "results" in purpose_data and purpose_data["results"][0]:
-#         purpose = purpose_data["results"][0]["purpose"][0]
-
-#     indications_and_usage_res = requests.get(
-#         f"{API_BASE_URL}/label.json",
-#         params={'api_key': api_key,
-#                 'search': f'"{medication_name}"'}
-#     )
-#     indications_and_usage_data = indications_and_usage_res.json()
-#     if "results" in indications_and_usage_data and indications_and_usage_data["results"][0]:
-#         indications_and_usage = indications_and_usage_data["results"][0]["indications_and_usage"][0]
-
-#     return {'Purpose': purpose, 'Indications and Usage': indications_and_usage}
 
 
 @app.route("/")
@@ -214,9 +202,9 @@ def edit_medication(medication_id):
 
         # Commit the changes to the database
         db.session.commit()
+        flash('Medication updated successfully.', 'success')
         return redirect('/')
-    else:
-        return render_template("edit_medication.html", form=form, medication=medication)
+    return render_template("edit_medication.html", form=form, medication=medication)
 
 
 @app.route('/delete_medication/<int:medication_id>', methods=['GET', 'POST'])

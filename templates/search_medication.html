@@ -15,10 +15,10 @@
   <div>{{ form.submit() }}</div>
 </form>
 
-{% if medication_name %}
+{% if medications %}
 <h2>Matching Medication Results:</h2>
 <ul>
-  {% for med in medication_name %}
+  {% for med in medications %}
   <li>
     <a href="/add_medication?medication_name={{ med }}">{{ med }}</a>
   </li>

@@ -34,7 +34,7 @@ class MedicationInfoForm(FlaskForm):
     medication_name = StringField('Name')
     start_date = DateField('Start Date', format='%Y-%m-%d')
     next_dose_time = DateField('Next Dose', format='%Y-%m-%d')
-    notes = StringField('Add Notes')
+    notes = StringField('Notes')
     purpose = TextAreaField('Purpose')
     indications_and_usage = TextAreaField('Indications and Usage')
 

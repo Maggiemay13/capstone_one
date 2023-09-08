@@ -19,11 +19,6 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
-# with app.app_context():
-#     db.drop_all()
-#     db.create_all()
-
-
 # API_LABEL_BASE_URL = 'https://api.fda.gov/drug/label.json'
 API_BASE_URL = 'https://api.fda.gov/drug'
 
@@ -67,25 +62,72 @@ def get_medication_info(medication_name):
     purpose = None
     indications_and_usage = None
 
-    # Search for medication information
+    # Search for medication information - Purpose (First API Route)
     purpose_res = requests.get(
         f"{API_BASE_URL}/label.json",
-        params={'api_key': api_key, 'search': f'"{medication_name}"'}
+        params={'api_key': api_key, 'search': f'purpose:"{medication_name}"'}
     )
     purpose_data = purpose_res.json()
-    if "results" in purpose_data and purpose_data["results"][0]:
-        purpose = purpose_data["results"][0]["purpose"][0]
+    if "results" in purpose_data and purpose_data["results"]:
+        purpose = purpose_data["results"][0].get("purpose", [None])[0]
 
+    # If purpose is not found in the first API route, search the second API route
+    if purpose is None:
+        purpose_res2 = requests.get(
+            f"{API_BASE_URL}/label.json",
+            params={'api_key': api_key, 'search': f'"{medication_name}"'}
+        )
+        purpose_data2 = purpose_res2.json()
+        if "results" in purpose_data2 and purpose_data2["results"]:
+            purpose = purpose_data2["results"][0].get("purpose", ['*'])[0]
+
+    # Search for medication information - Indications and Usage (First API Route)
     indications_and_usage_res = requests.get(
         f"{API_BASE_URL}/label.json",
         params={'api_key': api_key,
-                'search': f'"{medication_name}"'}
+                'search': f'indications_and_usage:"{medication_name}"'}
     )
     indications_and_usage_data = indications_and_usage_res.json()
-    if "results" in indications_and_usage_data and indications_and_usage_data["results"][0]:
-        indications_and_usage = indications_and_usage_data["results"][0]["indications_and_usage"][0]
+    if "results" in indications_and_usage_data and indications_and_usage_data["results"]:
+        indications_and_usage = indications_and_usage_data["results"][0].get(
+            "indications_and_usage", ['*'])[0]
+
+    # If indications and usage is not found in the first API route, search the second API route
+    if indications_and_usage is None:
+        indications_and_usage_res2 = requests.get(
+            f"{API_BASE_URL}/label.json",
+            params={'api_key': api_key, 'search': f'"{medication_name}"'}
+        )
+        indications_and_usage_data2 = indications_and_usage_res2.json()
+        if "results" in indications_and_usage_data2 and indications_and_usage_data2["results"]:
+            indications_and_usage = indications_and_usage_data2["results"][0].get(
+                "indications_and_usage", [None])[0]
 
     return {'Purpose': purpose, 'Indications and Usage': indications_and_usage}
+
+# def get_medication_info(medication_name):
+#     purpose = None
+#     indications_and_usage = None
+
+#     # Search for medication information
+#     purpose_res = requests.get(
+#         f"{API_BASE_URL}/label.json",
+#         params={'api_key': api_key, 'search': f'"{medication_name}"'}
+#     )
+#     purpose_data = purpose_res.json()
+#     if "results" in purpose_data and purpose_data["results"][0]:
+#         purpose = purpose_data["results"][0]["purpose"][0]
+
+#     indications_and_usage_res = requests.get(
+#         f"{API_BASE_URL}/label.json",
+#         params={'api_key': api_key,
+#                 'search': f'"{medication_name}"'}
+#     )
+#     indications_and_usage_data = indications_and_usage_res.json()
+#     if "results" in indications_and_usage_data and indications_and_usage_data["results"][0]:
+#         indications_and_usage = indications_and_usage_data["results"][0]["indications_and_usage"][0]
+
+#     return {'Purpose': purpose, 'Indications and Usage': indications_and_usage}
 
 
 @app.route("/")
@@ -98,13 +140,13 @@ def home_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_medication():
     form = SearchMedicationForm()
-    medication_name = None
+    medications = None
 
     if form.validate_on_submit():
         medication_name = form.medication.data
-        medication_name = get_generic_or_brand_names(medication_name)
+        medications = get_generic_or_brand_names(medication_name)
 
-    return render_template("search_medication.html", form=form, medication_name=medication_name)
+    return render_template("search_medication.html", form=form, medications=medications)
 
 
 @app.route('/add_medication', methods=["GET", "POST"])

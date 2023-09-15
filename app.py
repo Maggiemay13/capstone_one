@@ -2,7 +2,7 @@ import requests
 from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
+
 
 from secret import api_key
 from models import db, connect_db, Medication
@@ -151,10 +151,12 @@ def add_medication():
 
         medication_name = form.medication_name.data
         start_date = form.start_date.data
+        start_time = form.start_time.data
+        next_dose_date = form.next_dose_date.data
         next_dose_time = form.next_dose_time.data
         notes = form.notes.data
         new_medication = Medication(medication_name=medication_name,
-                                    start_date=start_date, next_dose_time=next_dose_time, notes=notes)
+                                    start_date=start_date, start_time=start_time, next_dose_date=next_dose_date, next_dose_time=next_dose_time,  notes=notes)
         db.session.add(new_medication)
         db.session.commit()
         flash('Medication added successfully.', 'success')
@@ -169,6 +171,8 @@ def show_medication(medication_id):
     medication_info_form = MedicationInfoForm()
     medication_info_form.medication_name.data = medication.medication_name
     medication_info_form.start_date.data = medication.start_date
+    medication_info_form.start_time.data = medication.start_time
+    medication_info_form.next_dose_date.data = medication.next_dose_date
     medication_info_form.next_dose_time.data = medication.next_dose_time
     medication_info_form.notes.data = medication.notes
 
@@ -190,6 +194,8 @@ def edit_medication(medication_id):
         # Populate the form fields with the existing data for the medication
         form.medication_name.data = medication.medication_name
         form.start_date.data = medication.start_date
+        form.start_time.data = medication.start_time
+        form.next_dose_date.data = medication.next_dose_date
         form.next_dose_time.data = medication.next_dose_time
         form.notes.data = medication.notes
 
@@ -197,6 +203,8 @@ def edit_medication(medication_id):
         # Update the medication with the new data
         medication.medication_name = form.medication_name.data
         medication.start_date = form.start_date.data
+        medication.start_time = form.start_time.data
+        medication.next_dose_date = form.next_dose_date.data
         medication.next_dose_time = form.next_dose_time.data
         medication.notes = form.notes.data
 

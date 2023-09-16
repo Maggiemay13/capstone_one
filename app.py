@@ -122,6 +122,13 @@ def get_medication_info(medication_name):
 def home_page():
     """Render home page with list of medications"""
     medications = Medication.query.all()
+    return render_template("home.html", medications=medications)
+
+
+@app.route("/medication_list")
+def medication_list():
+    """Render home page with list of medications"""
+    medications = Medication.query.all()
     return render_template("home_med_list.html", medications=medications)
 
 
@@ -160,7 +167,7 @@ def add_medication():
         db.session.add(new_medication)
         db.session.commit()
         flash('Medication added successfully.', 'success')
-        return redirect('/')
+        return redirect('/medication_list')
     else:
         return render_template("add_medication.html", form=form)
 

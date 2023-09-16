@@ -1,13 +1,15 @@
 {% extends 'base.html' %} {% block title %} Medication Information {% endblock
 %} {% block content %}
-<h1 class="display-1">{{ medication_info_form.medication_name.data }}</h1>
+<form class="form-group" method="POST"></form>
+<div class="form-group">
+<h1>{{ medication_info_form.medication_name.data }}</h1>
 <a class="btn btn-info btn-sm" href="/edit_medication/{{ medication.id }}"
   >Edit</a
 >
 <a class="btn btn-danger btn-sm" href="/delete_medication/{{ medication.id }}"
   >Delete</a
 >
-<form method="POST">
+
   {{ medication_info_form.hidden_tag() }}
   <p>
     {{ medication_info_form.medication_name.label }}: {{
@@ -41,5 +43,6 @@
     {{ medication_info_form.indications_and_usage.label }}: {{
     medication_info_form.indications_and_usage.data }}
   </p>
+</div>
 </form>
 {% endblock %}

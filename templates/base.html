@@ -15,10 +15,6 @@
    
   </head>
   <body>
-
-  
-
-
     <nav class="navbar navbar-expand-lg bg-body-tertiary"">
       <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +42,7 @@
     <div class="container">
       {% for message in messages %} {% set category = message[0] %}
       <div
-        class="alert alert-{{ category }} alert-dismissible fade show"
+        class="alert alert-light alert-dismissible fade show"
         role="alert"
       >
         {{ message }}
@@ -63,7 +59,7 @@
 
 <div class="bg-img" style="background-image: url('https://images.unsplash.com/photo-1533090161767-e6ffed986c88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3869&q=80');background-size: cover; background-repeat: no-repeat; width: 100vw; height: 100vh; padding-top: 66.66%; ">
 
-  <div class="container form-group" style=" margin-top: 200px;  position: absolute;top: 20%; left: 50%;  transform: translate(-50%, -50%);">
+  <div class="container-fluid form-group" style=" margin-top: 200px;  position: absolute;top: 20%; left: 50%;  transform: translate(-50%, -50%);">
   <div class="row justify-content-center">
     <div class="p-3 mb-2 bg-white  text-dark col-md-8 col-xl-5 border shadow rounded p-4 mx-3 mx-md-0">
       <div class="form-group text ">

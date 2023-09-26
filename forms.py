@@ -34,9 +34,9 @@ class MedicationInfoForm(FlaskForm):
     """Show information about medication"""
     medication_name = StringField('Name')
     start_date = DateField('Start Date', format='%Y-%m-%d')
-    start_time = TimeField('Start Time', format='%H:%M')
+    start_time = TimeField('Start Time', format='%I:%M %p')
     next_dose_date = DateField('Reminder Date', format='%Y-%m-%d')
-    next_dose_time = TimeField('Reminder Time', format='%H:%M')
+    next_dose_time = TimeField('Reminder Time', format='%I:%M %p')
     notes = StringField('Notes')
     purpose = TextAreaField('Purpose')
     indications_and_usage = TextAreaField('Indications and Usage')
@@ -48,9 +48,9 @@ class EditMedicationForm(FlaskForm):
     medication_name = StringField(
         'Medication Name', validators=[DataRequired()])
     start_date = DateField('Start Date', format='%Y-%m-%d')
-    start_time = TimeField('Time', format='%H:%M')
-    next_dose_date = DateField('Date', format='%Y-%m-%d')
-    next_dose_time = TimeField('Time', format='%H:%M')
+    start_time = TimeField('Start Time', format='%H:%M')
+    next_dose_date = DateField('Next Dose Date', format='%Y-%m-%d')
+    next_dose_time = TimeField('NextTime', format='%H:%M')
     notes = StringField('Notes')
 
 

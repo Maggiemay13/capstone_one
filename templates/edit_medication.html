@@ -13,6 +13,15 @@
   </div>
 
   <div class="form-group">
+    {{ form.start_time.label }}: {{ form.start_time(class="form-control") }}
+  </div>
+
+  <div class="form-group">
+    {{ form.next_dose_date.label }}: {{
+    form.next_dose_date(class="form-control") }}
+  </div>
+
+  <div class="form-group">
     {{ form.next_dose_time.label }}: {{
     form.next_dose_time(class="form-control") }}
   </div>

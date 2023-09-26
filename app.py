@@ -1,7 +1,9 @@
+from apscheduler.triggers.date import DateTrigger
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timedelta
 import requests
 from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
-from apscheduler.schedulers.background import BackgroundScheduler
 
 
 from secret import api_key
@@ -21,18 +23,58 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
-# API_LABEL_BASE_URL = 'https://api.fda.gov/drug/label.json'
 API_BASE_URL = 'https://api.fda.gov/drug'
 
-scheduler = BackgroundScheduler()
+# The "apscheduler." prefix is hard coded
+scheduler = BackgroundScheduler({
+
+    'apscheduler.jobstores.default': {
+        'type': 'sqlalchemy',
+        'url': 'sqlite:///jobs.sqlite'
+    },
+    'apscheduler.executors.default': {
+        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+        'max_workers': '20'
+    },
+    'apscheduler.executors.processpool': {
+        'type': 'processpool',
+        'max_workers': '5'
+    },
+    'apscheduler.job_defaults.coalesce': 'false',
+    'apscheduler.job_defaults.max_instances': '3',
+    'apscheduler.timezone': 'UTC',
+})
 
 
-def send_notification(medication_name):
-    message = f"It's time to take your {medication_name}."
-    flash(message, 'info')
+def send_flash_message():
+    flash("Time to take your medicine!")
 
 
-scheduler.start()
+def schedule_flash_message(user_input_datetime):
+    try:
+        reminder_time = datetime.strptime(
+            user_input_datetime, '%Y-%m-%d %H:%M')
+        current_time = datetime.now()
+
+        if reminder_time <= current_time:
+            flash("Invalid reminder time. Please choose a future date and time.")
+            # Redirect back to the form
+            return redirect(url_for('add_medication'))
+
+        delay_seconds = (reminder_time - current_time).total_seconds()
+
+        # Calculate the run_date as a datetime object
+        run_date = current_time + timedelta(seconds=delay_seconds)
+
+        # Schedule the flash message with the calculated run_date
+        scheduler = BackgroundScheduler()
+        scheduler.start()
+        scheduler.add_job(send_flash_message, DateTrigger(run_date=run_date))
+        flash(f"Flash message scheduled for {reminder_time}.")
+
+        return scheduler
+    except ValueError:
+        flash("Invalid date or time format. Please use YYYY-MM-DD HH:MM.")
 
 
 def get_generic_or_brand_names(medication):
@@ -164,9 +206,17 @@ def add_medication():
         notes = form.notes.data
         new_medication = Medication(medication_name=medication_name,
                                     start_date=start_date, start_time=start_time, next_dose_date=next_dose_date, next_dose_time=next_dose_time,  notes=notes)
+
+        next_dose_date = request.form['next_dose_date']
+        next_dose_time = request.form['next_dose_time']
+        # Combine date and time into user_input_datetime with the expected format
+        user_input_datetime = f"{next_dose_date} {next_dose_time}"
+        # Schedule the flash message
+        schedule_flash_message(user_input_datetime)
+
         db.session.add(new_medication)
         db.session.commit()
-        flash('Medication added successfully.', 'success')
+        flash('Medication successfully added.', 'success')
         return redirect('/medication_list')
     else:
         return render_template("add_medication.html", form=form)
@@ -230,7 +280,7 @@ def delete_medication(medication_id):
     db.session.commit()
 
     flash('Medication deleted successfully', 'success')
-    return redirect('/')
+    return redirect('/medication_list')
 
 
 if __name__ == '__main__':

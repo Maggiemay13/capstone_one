@@ -2,13 +2,17 @@ from apscheduler.triggers.date import DateTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 import requests
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect, flash, url_for, session, g
 from flask_debugtoolbar import DebugToolbarExtension
-
+from sqlalchemy.exc import IntegrityError
+from email_validator import validate_email, EmailNotValidError
 
 from secret import api_key
-from models import db, connect_db, Medication
-from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm
+from models import db, connect_db, Medication, User
+from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm, LoginForm, UserAddForm, UserEditForm
+
+
+CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
@@ -24,6 +28,12 @@ connect_db(app)
 
 
 API_BASE_URL = 'https://api.fda.gov/drug'
+
+
+# with app.app_context():
+#         db.drop_all()
+#         db.create_all()
+
 
 # The "apscheduler." prefix is hard coded
 scheduler = BackgroundScheduler({
@@ -160,9 +170,105 @@ def get_medication_info(medication_name):
     return {'Purpose': purpose, 'Indications and Usage': indications_and_usage}
 
 
+##############################################################################################
+# User signup/login/logout
+
+
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
+
+def do_login(user):
+    """Log in user."""
+
+    session[CURR_USER_KEY] = user.id
+
+
+def do_logout():
+    """Logout user."""
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
+
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    """Handle user signup.
+
+    Create new user and add to DB. Redirect to home page.
+
+    If form not valid, present form.
+
+    If the there already is a user with that username: flash message
+    and re-present form.
+    """
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+    form = UserAddForm()
+
+    if form.validate_on_submit():
+        try:
+            user = User.signup(
+                username=form.username.data,
+                password=form.password.data,
+                email=form.email.data,
+            )
+            db.session.commit()
+
+        except IntegrityError as e:
+            flash("Username already taken", 'danger')
+            return render_template('users/signup.html', form=form)
+
+        do_login(user)
+
+        return redirect("/")
+
+    else:
+        return render_template('users/signup.html', form=form)
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    """Handle user login."""
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.authenticate(form.username.data,
+                                 form.password.data)
+
+        if user:
+            do_login(user)
+            flash(f"Hello, {user.username}!", "success")
+            return redirect("/")
+
+        flash("Invalid credentials.", 'danger')
+
+    return render_template('users/login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    """Handle logout of user."""
+
+    do_logout()
+
+    flash("You have successfully logged out.", 'success')
+    return redirect("/login")
+
+
+###############################################################################################
+
 @app.route("/")
 def home_page():
-    """Render home page with list of medications"""
+    """Render home page"""
     medications = Medication.query.all()
     return render_template("home.html", medications=medications)
 

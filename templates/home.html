@@ -4,15 +4,21 @@ content %}
 <form class="container form-group text-center" method="POST">
   <div class="form-group">
     <main role="main" class="inner cover">
-      <h1 class="cover-heading text-center">Medication Reminder</h1>
+      <h1 class="cover-heading text-center">HappyHealth Reminder App</h1>
       <p class="form-group lead">
-        Medication Reminder is here to help remind you when to take your
-        medication. Life is busy enough - set reminders to help take your
+        HappyHealth Reminder is here to help remind you when to take your
+        medication! Life is busy enough - set reminders to help take your
         medication.
       </p>
+      {% if g.user %}
+      <!-- If the user is logged in, display a link to the "medication_list" page -->
       <a href="/medication_list" class="btn btn-lg btn-secondary"
-        >Lets Get Started!</a
+        >Go to Medication List</a
       >
+      {% else %}
+      <!-- If the user is not logged in, display a link to the "login" page -->
+      <a href="/login" class="btn btn-lg btn-secondary">Let's Get Started!</a>
+      {% endif %}
     </main>
   </div>
 </form>

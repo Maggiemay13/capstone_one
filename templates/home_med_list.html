@@ -12,6 +12,9 @@
             >{{ medication.medication_name }}</a
           >
         </td>
+        <td>
+          <span id="countdown_{{ medication.id }}"></span>
+        </td>
         <td></td>
         <td></td>
         {% else %}
@@ -23,5 +26,39 @@
 </div>
 
 <a class="btn btn-info btn-sm" href="/search">Add a New Medication</a>
+
+<script>
+  // Function to update the countdown for a specific medication
+  function updateCountdown(medicationId, nextDoseTime) {
+    const countdownElement = document.getElementById(`countdown_${medicationId}`);
+    const targetTime = new Date(nextDoseTime).getTime();
+
+    function update() {
+      const currentTime = new Date().getTime();
+      const timeRemaining = targetTime - currentTime;
+
+      if (timeRemaining <= 0) {
+        countdownElement.innerHTML = "Next dose due";
+      } else {
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+      }
+    }
+
+    // Initial update
+    update();
+
+    // Update the countdown every second
+    setInterval(update, 1000);
+  }
+
+  // Call the function for each medication
+  {% for medication in medications %}
+    updateCountdown({{ medication.id }}, '{{ medication.next_dose_time }}');
+  {% endfor %}
+</script>
 
 {% endblock %}

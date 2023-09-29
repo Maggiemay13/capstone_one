@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect, flash, url_for, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from email_validator import validate_email, EmailNotValidError
-
+from pytz import timezone
 from secret import api_key
 from models import db, connect_db, Medication, User
 from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm, LoginForm, UserAddForm, UserEditForm
@@ -34,6 +34,8 @@ API_BASE_URL = 'https://api.fda.gov/drug'
 #         db.drop_all()
 #         db.create_all()
 
+##########################################################################################
+# Notification information and messages.
 
 # The "apscheduler." prefix is hard coded
 scheduler = BackgroundScheduler({
@@ -62,6 +64,7 @@ def send_flash_message():
 
 def schedule_flash_message(user_input_datetime):
     try:
+        # Convert user_input_datetime to a datetime object
         reminder_time = datetime.strptime(
             user_input_datetime, '%Y-%m-%d %H:%M')
         current_time = datetime.now()
@@ -71,22 +74,29 @@ def schedule_flash_message(user_input_datetime):
             # Redirect back to the form
             return redirect(url_for('add_medication'))
 
-        delay_seconds = (reminder_time - current_time).total_seconds()
-
         # Calculate the run_date as a datetime object
-        run_date = current_time + timedelta(seconds=delay_seconds)
+        run_date = reminder_time
+
+        # Convert datetime objects to your desired formats
+        formatted_reminder_time = reminder_time.strftime('%B %d, %Y')
+        formatted_run_date = run_date.strftime('%I:%M %p %Z')
 
         # Schedule the flash message with the calculated run_date
         scheduler = BackgroundScheduler()
         scheduler.start()
         scheduler.add_job(send_flash_message, DateTrigger(run_date=run_date))
-        flash(f"Flash message scheduled for {reminder_time}.")
+
+        # Display formatted dates and times in the flash message
+        flash(
+            f"Notification message scheduled for {formatted_reminder_time} at {formatted_run_date}.")
 
         return scheduler
     except ValueError:
         flash("Invalid date or time format. Please use YYYY-MM-DD HH:MM.")
 
 
+###########################################################################################
+# retreive API information
 def get_generic_or_brand_names(medication):
     """Search for both generic and brand names of medication"""
     medication_names = []
@@ -261,7 +271,7 @@ def logout():
     do_logout()
 
     flash("You have successfully logged out.", 'success')
-    return redirect("/login")
+    return redirect("/")
 
 
 ###############################################################################################
@@ -276,12 +286,22 @@ def home_page():
 @app.route("/medication_list")
 def medication_list():
     """Render home page with list of medications"""
+
+    if not g.user:
+        flash("Access unauthorized please sign in to access medications.", "danger")
+        return redirect("/")
+
     medications = Medication.query.all()
-    return render_template("home_med_list.html", medications=medications)
+    return render_template("home_med_list.html", medications=medications, datetime=datetime)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search_medication():
+
+    if not g.user:
+        flash("Access unauthorized please sign in to access medications.", "danger")
+        return redirect("/")
+
     form = SearchMedicationForm()
     medications = None
 
@@ -302,6 +322,8 @@ def add_medication():
     if medication_name:
         form.medication_name.data = medication_name
 
+    user = g.user
+
     if form.validate_on_submit():
 
         medication_name = form.medication_name.data
@@ -310,8 +332,9 @@ def add_medication():
         next_dose_date = form.next_dose_date.data
         next_dose_time = form.next_dose_time.data
         notes = form.notes.data
+        user.user_id = user.id
         new_medication = Medication(medication_name=medication_name,
-                                    start_date=start_date, start_time=start_time, next_dose_date=next_dose_date, next_dose_time=next_dose_time,  notes=notes)
+                                    start_date=start_date, start_time=start_time, next_dose_date=next_dose_date, next_dose_time=next_dose_time,  notes=notes, user_id=user.id)
 
         next_dose_date = request.form['next_dose_date']
         next_dose_time = request.form['next_dose_time']
@@ -374,7 +397,7 @@ def edit_medication(medication_id):
         # Commit the changes to the database
         db.session.commit()
         flash('Medication updated successfully.', 'success')
-        return redirect('/')
+        return redirect('/medication_list')
     return render_template("edit_medication.html", form=form, medication=medication)
 
 

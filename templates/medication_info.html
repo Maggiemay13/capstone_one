@@ -1,36 +1,46 @@
 {% extends 'base.html' %} {% block title %} Medication Information {% endblock
 %} {% block content %}
-<form class="form-group" method="POST"></form>
 <div class="form-group">
-<h1>{{ medication_info_form.medication_name.data }}</h1>
-<a class="btn btn-info btn-sm" href="/edit_medication/{{ medication.id }}"
-  >Edit</a
->
-<a class="btn btn-danger btn-sm" href="/delete_medication/{{ medication.id }}"
-  >Delete</a
->
+  <h1>{{ medication_info_form.medication_name.data }}</h1>
+  <a class="btn btn-info btn-sm" href="/edit_medication/{{ medication.id }}"
+    >Edit</a
+  >
+  <a class="btn btn-danger btn-sm" href="/delete_medication/{{ medication.id }}"
+    >Delete</a
+  >
 
   {{ medication_info_form.hidden_tag() }}
+
   <p>
     {{ medication_info_form.medication_name.label }}: {{
     medication_info_form.medication_name.data }}
   </p>
+
+  <!-- Format start date as "Month Day, Year" -->
   <p>
     {{ medication_info_form.start_date.label }}: {{
-    medication_info_form.start_date.data }}
+    medication_info_form.start_date.data.strftime('%B %d, %Y') }}
   </p>
+
+  <!-- Format start time as "H:MM PM Central Time" -->
   <p>
     {{ medication_info_form.start_time.label }}: {{
-    medication_info_form.start_time.data }}
+    medication_info_form.start_time.data.strftime('%I:%M %p Central Time') }}
   </p>
+
+  <!-- Format next dose date as "Month Day, Year" -->
   <p>
     {{ medication_info_form.next_dose_date.label }}: {{
-    medication_info_form.next_dose_date.data }}
+    medication_info_form.next_dose_date.data.strftime('%B %d, %Y') }}
   </p>
+
+  <!-- Format next dose time as "H:MM PM Central Time" -->
   <p>
     {{ medication_info_form.next_dose_time.label }}: {{
-    medication_info_form.next_dose_time.data }}
+    medication_info_form.next_dose_time.data.strftime('%I:%M %p Central Time')
+    }}
   </p>
+
   <p>
     {{ medication_info_form.notes.label }}: {{ medication_info_form.notes.data
     }}
@@ -44,5 +54,4 @@
     medication_info_form.indications_and_usage.data }}
   </p>
 </div>
-</form>
 {% endblock %}

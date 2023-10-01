@@ -338,6 +338,10 @@ def add_medication():
 
         next_dose_date = request.form['next_dose_date']
         next_dose_time = request.form['next_dose_time']
+
+        # next_dose_date = next_dose_date.strftime('%Y-%m-%d')
+        # next_dose_time = next_dose_time.strftime('%H:%M:%S')
+
         # Combine date and time into user_input_datetime with the expected format
         user_input_datetime = f"{next_dose_date} {next_dose_time}"
         # Schedule the flash message

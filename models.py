@@ -13,9 +13,9 @@ class Medication(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     medication_name = db.Column(db.String(100), nullable=False)
-    start_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    start_date = db.Column(db.Date, default=datetime.date)
     start_time = db.Column(db.Time, default=datetime.time)
-    next_dose_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    next_dose_date = db.Column(db.Date, default=datetime.date)
     next_dose_time = db.Column(db.Time, default=datetime.time)
     is_taken = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)

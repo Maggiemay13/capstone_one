@@ -1,9 +1,10 @@
 {% extends 'base.html' %} {% block content %}
 
-<h1 class="text-center">Medication List</h1>
 <div>
   <table class="table table-striped">
-    <thead class="thread-light"></thead>
+    <thead class="thread-light">
+      <h1 class="text-center">Medication List</h1>
+    </thead>
     <tbody>
       {% for medication in medications %}
       <tr>
@@ -15,7 +16,12 @@
         <td>
           <span id="countdown_{{ medication.id }}"></span>
         </td>
-        <td></td>
+
+        <td>
+          <span>
+            <input type="checkbox" />
+          </span>
+        </td>
         <td></td>
         {% else %}
         <td>No Medications Added Yet!</td>
@@ -25,26 +31,56 @@
   </table>
 </div>
 
-<a class="btn btn-info btn-sm" href="/search">Add a New Medication</a>
+<a class="btn btn-secondary btn-sm" href="/search">Add a New Medication</a>
 
 <script>
-  // Function to update the countdown for a specific medication
-  function updateCountdown(medicationId, nextDoseTime) {
+     // Function to update the countdown for a specific medication
+  function updateCountdown(medicationId, nextDoseDate, nextDoseTime) {
     const countdownElement = document.getElementById(`countdown_${medicationId}`);
-    const targetTime = new Date(nextDoseTime).getTime();
+
+    // Convert nextDoseDate to a Date object
+    const dateParts = nextDoseDate.split(" ");
+    const dateArray = dateParts[0].split("-");
+    const year = parseInt(dateArray[0]);
+    const month = parseInt(dateArray[1]) - 1; // Month is zero-based
+    const day = parseInt(dateArray[2]);
+    const nextDoseDateObject = new Date(year, month, day);
+
+    // Format nextDoseDate in "YYYY-MM-DD" format
+    const formattedNextDoseDate = nextDoseDateObject.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
+
+    // Format nextDoseTime if needed (e.g., converting to a 12-hour format)
+    // Example: "14:30:00" to "02:30 PM"
+    const formattedNextDoseTime = formatNextDoseTime(nextDoseTime);
+    let interval;
+
+    const targetDateTimeString = `${formattedNextDoseDate} ${formattedNextDoseTime}`;
+    const targetTime = new Date(targetDateTimeString).getTime();
+
 
     function update() {
       const currentTime = new Date().getTime();
       const timeRemaining = targetTime - currentTime;
 
       if (timeRemaining <= 0) {
-        countdownElement.innerHTML = "Next dose due";
+        clearInterval(interval);
+        countdownElement.innerHTML = "EXPIRED";
       } else {
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
-        countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+        const formattedDays = isNaN(days) ? "0" : days;
+        const formattedHours = isNaN(hours) ? "0" : hours;
+        const formattedMinutes = isNaN(minutes) ? "0" : minutes;
+        const formattedSeconds = isNaN(seconds) ? "0" : seconds;
+
+        countdownElement.innerHTML = `${formattedDays}Days ${formattedHours}H ${formattedMinutes}M ${formattedSeconds}S`;
       }
     }
 
@@ -52,13 +88,29 @@
     update();
 
     // Update the countdown every second
-    setInterval(update, 1000);
+    const interval1 = setInterval(update, 1000);
   }
 
   // Call the function for each medication
   {% for medication in medications %}
-    updateCountdown({{ medication.id }}, '{{ medication.next_dose_time }}');
+    updateCountdown({{ medication.id }}, '{{ medication.next_dose_date }}', '{{ medication.next_dose_time }}');
   {% endfor %}
+
+  // Format nextDoseTime function (customize as needed)
+  function formatNextDoseTime(time) {
+    // Example: "14:30:00" to "02:30 PM"
+    const parts = time.split(":");
+    let hours = parseInt(parts[0]);
+    const minutes = parts[1];
+    let ampm = "AM";
+    if (hours >= 12) {
+      ampm = "PM";
+      if (hours > 12) {
+        hours -= 12;
+      }
+    }
+    return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  }
 </script>
 
 {% endblock %}

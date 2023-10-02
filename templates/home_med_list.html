@@ -1,12 +1,22 @@
-{% extends 'base.html' %} {% block content %}
+-{% extends 'base.html' %} {% block content %}
 
 <div>
   <table class="table table-striped">
     <thead class="thread-light">
       <h1 class="text-center">Medication List</h1>
+      <td>
+        <span> Name </span>
+      </td>
+      <td>
+        <span> Time </span>
+      </td>
+      <td>
+        <span> Completed! </span>
+      </td>
     </thead>
     <tbody>
       {% for medication in medications %}
+
       <tr>
         <td>
           <a aria-label="close" href="/medication/{{medication.id}}"
@@ -16,7 +26,6 @@
         <td>
           <span id="countdown_{{ medication.id }}"></span>
         </td>
-
         <td>
           <span>
             <input type="checkbox" />

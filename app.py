@@ -12,6 +12,7 @@ from models import db, connect_db, Medication, User
 from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm, LoginForm, UserAddForm, UserEditForm
 
 
+
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)

@@ -7,7 +7,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from email_validator import validate_email, EmailNotValidError
 from pytz import timezone
-from secret import api_key
 from models import db, connect_db, Medication, User
 from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm, LoginForm, UserAddForm, UserEditForm
 import os
@@ -21,7 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-app.config['SECRET_KEY'] = "I'LL NEVER TELL!!"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 # toolbar = DebugToolbarExtension(app)
 
 

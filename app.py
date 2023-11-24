@@ -10,19 +10,19 @@ from pytz import timezone
 from secret import api_key
 from models import db, connect_db, Medication, User
 from forms import SearchMedicationForm, AddMedicationForm, MedicationInfoForm, EditMedicationForm, LoginForm, UserAddForm, UserEditForm
-
-
+import os
 
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///med-reminder'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    "DATABASE_URL", 'postgresql:///med-reminder')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = "I'LL NEVER TELL!!"
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 
 connect_db(app)
@@ -31,12 +31,20 @@ connect_db(app)
 API_BASE_URL = 'https://api.fda.gov/drug'
 
 
-# with app.app_context():
-#         db.drop_all()
-#         db.create_all()
+###################################################################################################
+# Send Email
+def send_simple_message():
+    return requests.post(
+        "https://api.mailgun.net/v3/sandbox5fd139902c914fb48adf37184fa70950.mailgun.org/messages",
+        auth=("api", "34cf11b275ddc9b52c475a735597ac25-5465e583-45ce96c3"),
+        data={"from": "Excited User <mailgun@sandbox5fd139902c914fb48adf37184fa70950.mailgun.org>",
+              "to": ["margaret13.may@gmail.com", "YOU@sandbox5fd139902c914fb48adf37184fa70950.mailgun.org"],
+              "subject": "Hello",
+              "text": "Testing some Mailgun awesomeness!"})
 
 ##########################################################################################
 # Notification information and messages.
+
 
 # The "apscheduler." prefix is hard coded
 scheduler = BackgroundScheduler({

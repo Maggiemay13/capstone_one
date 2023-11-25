@@ -31,16 +31,7 @@ connect_db(app)
 API_BASE_URL = 'https://api.fda.gov/drug'
 
 
-###################################################################################################
-# Send Email
-def send_simple_message():
-    return requests.post(
-        "https://api.mailgun.net/v3/sandbox5fd139902c914fb48adf37184fa70950.mailgun.org/messages",
-        auth=("api", "34cf11b275ddc9b52c475a735597ac25-5465e583-45ce96c3"),
-        data={"from": "Excited User <mailgun@sandbox5fd139902c914fb48adf37184fa70950.mailgun.org>",
-              "to": ["margaret13.may@gmail.com", "YOU@sandbox5fd139902c914fb48adf37184fa70950.mailgun.org"],
-              "subject": "Hello",
-              "text": "Testing some Mailgun awesomeness!"})
+
 
 ##########################################################################################
 # Notification information and messages.

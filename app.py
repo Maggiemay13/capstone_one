@@ -112,7 +112,7 @@ def get_generic_or_brand_names(medication):
     # Search for generic name
     generic_res = requests.get(
         f"{API_BASE_URL}/label.json",
-        params={'api_key': api_key,
+        params={'os.environ.get("api_key")': os.environ.get("api_key"),
                 'search': f'openfda.generic_name:"{medication}"'}
     )
     generic_data = generic_res.json()
@@ -127,7 +127,7 @@ def get_generic_or_brand_names(medication):
     if not medication_names:
         brand_res = requests.get(
             f"{API_BASE_URL}/label.json",
-            params={'api_key': api_key,
+            params={'os.environ.get("api_key")': os.environ.get("api_key"),
                     'search': f'openfda.brand_name:"{medication}"'}
         )
         brand_data = brand_res.json()
@@ -147,7 +147,7 @@ def get_medication_info(medication_name):
     # Search for medication information - Purpose (First API Route)
     purpose_res = requests.get(
         f"{API_BASE_URL}/label.json",
-        params={'api_key': api_key, 'search': f'purpose:"{medication_name}"'}
+        params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'purpose:"{medication_name}"'}
     )
     purpose_data = purpose_res.json()
     if "results" in purpose_data and purpose_data["results"]:
@@ -157,7 +157,7 @@ def get_medication_info(medication_name):
     if purpose is None:
         purpose_res2 = requests.get(
             f"{API_BASE_URL}/label.json",
-            params={'api_key': api_key, 'search': f'"{medication_name}"'}
+            params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'"{medication_name}"'}
         )
         purpose_data2 = purpose_res2.json()
         if "results" in purpose_data2 and purpose_data2["results"]:
@@ -166,7 +166,7 @@ def get_medication_info(medication_name):
     # Search for medication information - Indications and Usage (First API Route)
     indications_and_usage_res = requests.get(
         f"{API_BASE_URL}/label.json",
-        params={'api_key': api_key,
+        params={'os.environ.get("api_key")': os.environ.get("api_key"),
                 'search': f'indications_and_usage:"{medication_name}"'}
     )
     indications_and_usage_data = indications_and_usage_res.json()
@@ -178,7 +178,7 @@ def get_medication_info(medication_name):
     if indications_and_usage is None:
         indications_and_usage_res2 = requests.get(
             f"{API_BASE_URL}/label.json",
-            params={'api_key': api_key, 'search': f'"{medication_name}"'}
+            params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'"{medication_name}"'}
         )
         indications_and_usage_data2 = indications_and_usage_res2.json()
         if "results" in indications_and_usage_data2 and indications_and_usage_data2["results"]:

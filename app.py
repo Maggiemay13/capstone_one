@@ -1,6 +1,6 @@
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 from flask import Flask, render_template, request, redirect, flash, url_for, session, g
 from flask_debugtoolbar import DebugToolbarExtension
@@ -16,13 +16,13 @@ CURR_USER_KEY = "curr_user"
 app = Flask(__name__)
 #
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    "DATABASE_URL", 'postgresql:///med-reminder')
+    "DATABASE_URL", 'postgresql')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 # toolbar = DebugToolbarExtension(app)
-
+# postgresql:///med-reminder
 
 connect_db(app)
 
@@ -147,7 +147,8 @@ def get_medication_info(medication_name):
     # Search for medication information - Purpose (First API Route)
     purpose_res = requests.get(
         f"{API_BASE_URL}/label.json",
-        params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'purpose:"{medication_name}"'}
+        params={'os.environ.get("api_key")': os.environ.get(
+            "api_key"), 'search': f'purpose:"{medication_name}"'}
     )
     purpose_data = purpose_res.json()
     if "results" in purpose_data and purpose_data["results"]:
@@ -157,7 +158,8 @@ def get_medication_info(medication_name):
     if purpose is None:
         purpose_res2 = requests.get(
             f"{API_BASE_URL}/label.json",
-            params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'"{medication_name}"'}
+            params={'os.environ.get("api_key")': os.environ.get(
+                "api_key"), 'search': f'"{medication_name}"'}
         )
         purpose_data2 = purpose_res2.json()
         if "results" in purpose_data2 and purpose_data2["results"]:
@@ -178,7 +180,8 @@ def get_medication_info(medication_name):
     if indications_and_usage is None:
         indications_and_usage_res2 = requests.get(
             f"{API_BASE_URL}/label.json",
-            params={'os.environ.get("api_key")': os.environ.get("api_key"), 'search': f'"{medication_name}"'}
+            params={'os.environ.get("api_key")': os.environ.get(
+                "api_key"), 'search': f'"{medication_name}"'}
         )
         indications_and_usage_data2 = indications_and_usage_res2.json()
         if "results" in indications_and_usage_data2 and indications_and_usage_data2["results"]:

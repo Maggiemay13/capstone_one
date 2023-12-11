@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-<form method="POST" >
+<form method="POST" action="https://happyhealth.onrender.com/search">
   {{ form.hidden_tag() }}
   <div>
     <h3 class="display-6 text-center">Search for Medication</h3>
@@ -14,7 +14,7 @@
     </ul>
     {% endif %}
   </div>
-<div class="btn btn-info btn-sm">{{ form.submit(https://happyhealth.onrender.com/search) }}</div> -->
+<div class="btn btn-info btn-sm">{{ form.submit() }}</div> -->
 <!--  <button class="btn btn-secondary btn-sm" type="submit">Search</button> -->
   <div>
     {% if medications %}
